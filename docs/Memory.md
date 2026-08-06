@@ -1,7 +1,7 @@
 # HoneyGuard - Memory.md
 
 Current Phase:
-Phase 1
+Phase 1 complete
 
 Progress
 
@@ -15,7 +15,7 @@ Completed
 ✓ Design v1
 
 In Progress
-- Phase 1 application foundation
+None
 
 Completed This Phase
 - Initial FastAPI backend foundation
@@ -29,6 +29,10 @@ Completed This Phase
 - React Router and TanStack React Query application providers
 - Environment-configured frontend health check with loading, healthy, and unavailable states
 - Minimal responsive skeuomorphic HoneyGuard foundation screen
+- Phase 1.4 shared API response contract
+- Centralized API exception handling with safe client responses and server-side logs
+- Centralized standard-library backend logging configured by LOG_LEVEL
+- Phase 1 backend foundation hardening and validation
 
 Blocked
 None
@@ -58,3 +62,7 @@ Phase 1.2 PostgreSQL, SQLAlchemy, and Alembic foundation completed without domai
 
 v0.4
 Phase 1.3 frontend foundation completed and validated with lint and production build.
+
+v0.5
+Phase 1.4 backend foundation hardening completed: shared API response schemas,
+centralized exception handling, LOG_LEVEL-driven standard logging, and full Phase 1 validation.

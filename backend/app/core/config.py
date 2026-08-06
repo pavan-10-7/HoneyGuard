@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     app_name: str = "HoneyGuard API"
     app_version: str = "0.1.0"
     cors_origins: list[str] = ["http://localhost:5173"]
+    log_level: str = Field(default="INFO", validation_alias="LOG_LEVEL")
     postgres_db: str = Field(validation_alias="POSTGRES_DB")
     postgres_user: str = Field(validation_alias="POSTGRES_USER")
     postgres_password: str = Field(validation_alias="POSTGRES_PASSWORD")
