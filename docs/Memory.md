@@ -21,6 +21,10 @@ Completed This Phase
 - Initial FastAPI backend foundation
 - Backend health endpoint
 - Backend configuration and frontend CORS
+- PostgreSQL 16 Docker Compose service with persistent storage and healthcheck
+- SQLAlchemy database engine, sessions, declarative base, and FastAPI dependency
+- Alembic foundation sharing the application database configuration
+- Database-aware backend health endpoint
 
 Blocked
 None
@@ -44,3 +48,6 @@ Initial documentation created.
 
 v0.2
 Initial FastAPI backend foundation completed with a configured health endpoint.
+
+v0.3
+Phase 1.2 PostgreSQL, SQLAlchemy, and Alembic foundation completed without domain tables or migrations.
