@@ -1,7 +1,8 @@
 # HoneyGuard - Memory.md
 
 Current Phase:
-Phase 1 complete
+Phase 2 — Telemetry
+Phase 2.1 complete
 
 Progress
 
@@ -33,6 +34,18 @@ Completed This Phase
 - Centralized API exception handling with safe client responses and server-side logs
 - Centralized standard-library backend logging configured by LOG_LEVEL
 - Phase 1 backend foundation hardening and validation
+- Phase 2.1 SecurityEvent persistence foundation
+- PostgreSQL security_events table created through Alembic migration
+- UUID-based SecurityEvent SQLAlchemy model
+- IPv4/IPv6 source address storage using PostgreSQL INET
+- Timezone-aware security event timestamps
+- Pydantic schemas for internal event creation and API output
+- SecurityEvent repository for create, lookup, and recent-event retrieval
+- Read-only GET /api/v1/events endpoint
+- Read-only GET /api/v1/events/{event_id} endpoint
+- Bounded event listing limit
+- Controlled event-not-found handling
+- Database indexes for timestamp, source_ip, and event_type
 
 Blocked
 None
@@ -45,8 +58,11 @@ Architecture Decisions
 ✓ Rule-based detection
 
 Future Decisions
-- Database schema
+- Telemetry capture rules and sanitization boundaries
+- Decoy endpoint catalogue
+- Session correlation strategy
 - Detection rules
+- Threat scoring model
 - Dashboard widgets
 
 Change Log
@@ -66,3 +82,8 @@ Phase 1.3 frontend foundation completed and validated with lint and production b
 v0.5
 Phase 1.4 backend foundation hardening completed: shared API response schemas,
 centralized exception handling, LOG_LEVEL-driven standard logging, and full Phase 1 validation.
+
+v0.6
+Phase 2.1 security event persistence completed. Added the SecurityEvent domain model,
+Alembic migration, event schemas, repository layer, and read-only event APIs.
+
