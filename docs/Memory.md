@@ -2,7 +2,7 @@
 
 Current Phase:
 Phase 2 — Telemetry
-Phase 2.1 complete
+Phase 2.3 complete
 
 Progress
 
@@ -46,6 +46,16 @@ Completed This Phase
 - Bounded event listing limit
 - Controlled event-not-found handling
 - Database indexes for timestamp, source_ip, and event_type
+- Phase 2.2 TelemetryCollector service implemented
+- Internal telemetry dependency for request-scoped collectors
+- Automatic normalization of decoy interactions
+- Request body size limiting (16 KiB)
+- Recursive JSON payload sanitization
+- Automatic redaction of sensitive fields (passwords, tokens, API keys, cookies, authorization values)
+- Structured telemetry logging
+- Phase 2.3 first production decoy endpoint (/decoy/admin/login)
+- End-to-end telemetry pipeline validated:
+  Decoy → Collector → Repository → PostgreSQL → Events API
 
 Blocked
 None
@@ -58,7 +68,8 @@ Architecture Decisions
 ✓ Rule-based detection
 
 Future Decisions
-- Telemetry capture rules and sanitization boundaries
+- Multi-decoy strategy
+- Session correlation strategy
 - Decoy endpoint catalogue
 - Session correlation strategy
 - Detection rules
@@ -87,3 +98,11 @@ v0.6
 Phase 2.1 security event persistence completed. Added the SecurityEvent domain model,
 Alembic migration, event schemas, repository layer, and read-only event APIs.
 
+v0.7
+Phase 2.2 introduced the TelemetryCollector responsible for request normalization,
+payload sanitization, sensitive-data redaction, and event persistence.
+
+v0.8
+Phase 2.3 introduced HoneyGuard's first deception endpoint and validated the
+complete telemetry pipeline from decoy interaction through PostgreSQL storage
+and API retrieval.
