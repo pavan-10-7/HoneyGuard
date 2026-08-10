@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 from app.models.security_event import SecurityEvent
 from app.schemas.security_event import SecurityEventCreate, SecurityEventType
 from app.telemetry.event_repository import SecurityEventRepository
+from app.telemetry.session_repository import AttackSessionRepository
 
 
 logger = logging.getLogger(__name__)
@@ -39,7 +40,8 @@ class TelemetryCollector:
     """Normalize decoy interactions and persist them as security events."""
 
     def __init__(self, db: Session) -> None:
-        self.repository = SecurityEventRepository(db)
+        self.event_repository = SecurityEventRepository(db)
+        self.session_repository = AttackSessionRepository(db)
 
     async def collect_decoy_interaction(
         self,
@@ -51,10 +53,19 @@ class TelemetryCollector:
         """Capture a single interaction with a HoneyGuard decoy resource."""
 
         request_body = await self._extract_request_body(request)
+        timestamp = datetime.now(timezone.utc)
+
+        source_ip = self._extract_source_ip(request)
+
+        session = self.session_repository.get_or_create(
+            source_ip=source_ip,
+            timestamp=timestamp,
+        )
 
         event_data = SecurityEventCreate(
-            timestamp=datetime.now(timezone.utc),
-            source_ip=self._extract_source_ip(request),
+            session_id=session.id,
+            timestamp=timestamp,
+            source_ip=source_ip,
             http_method=request.method,
             path=request.url.path,
             query_string=request.url.query or None,
@@ -66,7 +77,7 @@ class TelemetryCollector:
             event_type=event_type,
         )
 
-        event = self.repository.create(event_data)
+        event = self.event_repository.create(event_data)
 
         logger.info(
             "Decoy interaction captured event_id=%s source_ip=%s "
