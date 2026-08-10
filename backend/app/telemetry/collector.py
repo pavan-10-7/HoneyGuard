@@ -46,6 +46,7 @@ class TelemetryCollector:
         request: Request,
         *,
         status_code: int,
+        event_type: SecurityEventType,
     ) -> SecurityEvent:
         """Capture a single interaction with a HoneyGuard decoy resource."""
 
@@ -62,7 +63,7 @@ class TelemetryCollector:
             content_type=request.headers.get("content-type"),
             request_body=request_body,
             status_code=status_code,
-            event_type=SecurityEventType.DECOY_INTERACTION,
+            event_type=event_type,
         )
 
         event = self.repository.create(event_data)

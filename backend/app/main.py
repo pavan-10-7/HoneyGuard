@@ -3,7 +3,12 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.decoys import router as decoys_router
+from app.api.decoys.admin import router as admin_decoy_router
+from app.api.decoys.wordpress import router as wordpress_decoy_router
+from app.api.decoys.database import router as database_decoy_router
+from app.api.decoys.backups import router as backup_decoy_router
+from app.api.decoys.internal_api import router as internal_api_decoy_router
+from app.api.decoys.infrastructure import router as infrastructure_decoy_router
 from app.api.events import router as events_router
 from app.api.health import router as health_router
 from app.core.config import settings
@@ -24,6 +29,11 @@ app.add_middleware(
 
 app.include_router(health_router)
 app.include_router(events_router)
-app.include_router(decoys_router)
+app.include_router(admin_decoy_router)
+app.include_router(wordpress_decoy_router)
+app.include_router(database_decoy_router)
+app.include_router(backup_decoy_router)
+app.include_router(internal_api_decoy_router)
+app.include_router(infrastructure_decoy_router)
 
 register_exception_handlers(app)

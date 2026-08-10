@@ -8,9 +8,16 @@ from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, IPvAnyAddress
 
 
 class SecurityEventType(StrEnum):
-    """Known event categories; additional values can be added as telemetry grows."""
+    """Supported HoneyGuard deception event categories."""
 
-    DECOY_INTERACTION = "decoy_interaction"
+    ADMIN_LOGIN = "admin_login"
+    WORDPRESS = "wordpress"
+    PHPMYADMIN = "phpmyadmin"
+    BACKUP_FILE = "backup_file"
+    ENV_FILE = "env_file"
+    INTERNAL_API = "internal_api"
+    JENKINS = "jenkins"
+    GRAFANA = "grafana"
 
 
 class SecurityEventCreate(BaseModel):
@@ -26,7 +33,7 @@ class SecurityEventCreate(BaseModel):
     content_type: str | None = Field(default=None, max_length=255)
     request_body: str | None = None
     status_code: int = Field(ge=100, le=599)
-    event_type: SecurityEventType = SecurityEventType.DECOY_INTERACTION
+    event_type: SecurityEventType = SecurityEventType.ADMIN_LOGIN
 
 
 class SecurityEventRead(BaseModel):

@@ -1,8 +1,8 @@
 # HoneyGuard - Memory.md
 
 Current Phase:
-Phase 2 — Telemetry
-Phase 2.3 complete
+Phase 2 — Deception Framework
+Phase 2.4 complete
 
 Progress
 
@@ -56,6 +56,14 @@ Completed This Phase
 - Phase 2.3 first production decoy endpoint (/decoy/admin/login)
 - End-to-end telemetry pipeline validated:
   Decoy → Collector → Repository → PostgreSQL → Events API
+  - Introduced scalable DecoyService framework
+- Added reusable response builders (HTML, JSON, text, binary)
+- Moved decoy HTML into external template files
+- Refactored admin login decoy to use DecoyService
+- Added WordPress, phpMyAdmin, Jenkins and Grafana login decoys
+- Added internal API, environment file and backup file decoys
+- Introduced endpoint-specific event types for richer telemetry
+- Validated telemetry capture across all deception endpoints
 
 Blocked
 None
@@ -68,8 +76,9 @@ Architecture Decisions
 ✓ Rule-based detection
 
 Future Decisions
-- Multi-decoy strategy
-- Session correlation strategy
+- Attack session correlation
+- Threat scoring
+- Live dashboard updates
 - Decoy endpoint catalogue
 - Session correlation strategy
 - Detection rules
@@ -106,3 +115,10 @@ v0.8
 Phase 2.3 introduced HoneyGuard's first deception endpoint and validated the
 complete telemetry pipeline from decoy interaction through PostgreSQL storage
 and API retrieval.
+
+v0.9
+Phase 2.4 completed the scalable deception framework. HoneyGuard now
+supports reusable decoy services, external HTML templates, endpoint-specific
+telemetry, and multiple realistic deception surfaces including administrator,
+WordPress, phpMyAdmin, internal APIs, backup files, environment files,
+Jenkins and Grafana.
