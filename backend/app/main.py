@@ -16,6 +16,7 @@ from app.core.config import settings
 from app.core.exceptions import register_exception_handlers
 from app.core.logging import configure_logging
 from app.api.timeline import router as timeline_router
+from app.api.dashboard import router as dashboard_router
 
 
 configure_logging(settings.log_level)
@@ -39,5 +40,6 @@ app.include_router(internal_api_decoy_router)
 app.include_router(infrastructure_decoy_router)
 app.include_router(session_router)
 app.include_router(timeline_router)
+app.include_router(dashboard_router)
 
 register_exception_handlers(app)

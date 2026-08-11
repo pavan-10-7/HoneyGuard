@@ -1,7 +1,7 @@
 # HoneyGuard - Memory.md
 
 Current Phase:
-Phase 2.7 - Dashboard API
+Phase 3 - Detection Engine
 
 Progress
 
@@ -20,9 +20,10 @@ Completed
 ✓ Phase 2.4 Decoy Endpoints
 ✓ Phase 2.5 Attack Session Correlation
 ✓ Phase 2.6 Attack Timeline API
+✓ Phase 2.7 Dashboard Summary API
 
 In Progress
-- Phase 2.7 Dashboard Summary API
+- Phase 3 Detection Engine
 
 Completed This Phase
 - AttackSession SQLAlchemy model
@@ -35,6 +36,10 @@ Completed This Phase
 - Timeline API
 - Human-readable timeline reconstruction
 - Chronological attack reconstruction
+- Dashboard summary API
+- Dashboard aggregation endpoint
+- Latest events and sessions aggregation
+- Event breakdown statistics
 
 Blocked
 None
@@ -80,3 +85,6 @@ Phase 2.5 completed: attack session correlation with session APIs and linked sec
 
 v0.8
 Phase 2.6 completed: chronological attack timeline API with human-readable event reconstruction.
+
+v0.9
+Phase 2.7 completed: dashboard summary API with aggregated security metrics, recent sessions, recent events, and event breakdown statistics.
