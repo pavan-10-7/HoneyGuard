@@ -1,7 +1,7 @@
 # HoneyGuard - Memory.md
 
 Current Phase:
-Phase 5 - Frontend Dashboard
+Phase 6
 
 Progress
 
@@ -23,36 +23,36 @@ Completed
 ✓ Phase 2.7 Dashboard Summary API
 ✓ Phase 3 Detection Engine
 ✓ Phase 4 Live Updates
+✓ Phase 5 Frontend Dashboard
 
 In Progress
-- Phase 3 Detection Engine
+- Phase 6
 
 Completed This Phase
-- AttackSession SQLAlchemy model
-- AttackSession Alembic migration
-- Session repository
-- Session-aware telemetry collection
-- Security events linked to attack sessions
-- Read-only Sessions API
-- Session detail endpoint with related events
-- Timeline API
-- Human-readable timeline reconstruction
-- Chronological attack reconstruction
-- Dashboard summary API
-- Dashboard aggregation endpoint
-- Latest events and sessions aggregation
-- Event breakdown statistics
-- Rule-based detection engine
-- Threat scoring system
-- Automatic severity calculation
-- Persistent session severity
-- Detection API
-- Rule explanations for threat analysis
-- WebSocket server
-- Connection manager
-- Live event broadcasting
-- Live attack session broadcasting
-- Live dashboard broadcasting
+- SOC dashboard frontend foundation
+- Dashboard application shell
+- Sidebar navigation
+- Dashboard header
+- Security metric cards
+- Live Event Feed interface
+- Active Attack Sessions interface
+- Threat Timeline interface
+- Threat Distribution interface
+- Approved dashboard visual design
+- Locked HoneyGuard visual language
+- Responsive desktop layout
+- Responsive tablet layout
+- Responsive mobile layout
+- Mobile navigation drawer
+- Mobile header behavior
+- Touch-friendly responsive controls
+- Subtle Framer Motion interactions
+- Dashboard entrance animations
+- Subtle metric card hover interactions
+- Mobile navigation transitions
+- Reduced-motion-friendly animation approach
+- Cross-device frontend validation
+- Final Phase 5 UI polish and validation
 
 Blocked
 None
@@ -70,6 +70,9 @@ Architecture Decisions
 ✓ Event-driven backend
 ✓ Single WebSocket connection for dashboard
 ✓ Broadcast-based live updates
+✓ Responsive SOC dashboard
+✓ Locked dashboard visual design
+✓ Subtle motion and interaction design
 
 Future Decisions
 - Dashboard widgets
@@ -79,6 +82,15 @@ Future Decisions
 - Attack simulation framework
 - Alert notification strategy
 - Dashboard visualizations
+
+Design Constraints
+- HoneyGuard dashboard visual design is locked after Phase 5.
+- Do not redesign the approved dashboard layout in future phases.
+- Preserve the approved color palette, typography, spacing hierarchy, sidebar, header, cards, timeline, threat distribution and overall visual language.
+- Future frontend work should focus on functionality, responsiveness, usability, data integration and subtle interaction improvements.
+- Avoid introducing excessive skeuomorphic styling.
+- Motion should remain subtle and purposeful.
+- Preserve responsive behavior across desktop, tablet and mobile layouts.
 
 Change Log
 
@@ -117,3 +129,16 @@ Completed Phase 4:
 - Implemented WebSocket infrastructure.
 - Added real-time event, session and dashboard broadcasts.
 - Backend now pushes updates instead of requiring polling.
+
+v1.2
+Completed Phase 5:
+- Built the HoneyGuard SOC dashboard frontend.
+- Implemented dashboard shell, sidebar and header.
+- Added security metric cards, live event feed, active attack sessions, threat timeline and threat distribution.
+- Established and locked the approved HoneyGuard dashboard visual design.
+- Removed unnecessary forced skeuomorphic treatment while retaining the approved visual language.
+- Implemented responsive desktop, tablet and mobile behavior.
+- Added mobile navigation and responsive header behavior.
+- Added subtle Framer Motion interactions and transitions.
+- Validated the dashboard across desktop, tablet and mobile viewport sizes.
+- Phase 5 frontend design is now considered locked for subsequent phases.
