@@ -6,12 +6,15 @@ from datetime import datetime, timezone
 from typing import Any
 
 from fastapi import Request
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.models.security_event import SecurityEvent
 from app.schemas.security_event import SecurityEventCreate, SecurityEventType
 from app.telemetry.event_repository import SecurityEventRepository
 from app.telemetry.session_repository import AttackSessionRepository
+from app.detection.engine import DetectionEngine
+
 
 
 logger = logging.getLogger(__name__)
@@ -78,6 +81,25 @@ class TelemetryCollector:
         )
 
         event = self.event_repository.create(event_data)
+
+        events = list(
+            self.event_repository.db.scalars(
+                select(SecurityEvent)
+                .where(SecurityEvent.session_id == session.id)
+                .order_by(SecurityEvent.timestamp.asc())
+            )
+        )
+
+        result = DetectionEngine.analyze(
+            session=session,
+            events=events,
+        )
+
+        session.severity = result.severity
+        session.score = result.score
+
+        self.session_repository.db.commit()
+        self.session_repository.db.refresh(session)
 
         logger.info(
             "Decoy interaction captured event_id=%s source_ip=%s "

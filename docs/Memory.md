@@ -1,7 +1,7 @@
 # HoneyGuard - Memory.md
 
 Current Phase:
-Phase 3 - Detection Engine
+Phase 4 - Live Updates
 
 Progress
 
@@ -21,6 +21,7 @@ Completed
 ✓ Phase 2.5 Attack Session Correlation
 ✓ Phase 2.6 Attack Timeline API
 ✓ Phase 2.7 Dashboard Summary API
+✓ Phase 3 Detection Engine
 
 In Progress
 - Phase 3 Detection Engine
@@ -40,6 +41,12 @@ Completed This Phase
 - Dashboard aggregation endpoint
 - Latest events and sessions aggregation
 - Event breakdown statistics
+- Rule-based detection engine
+- Threat scoring system
+- Automatic severity calculation
+- Persistent session severity
+- Detection API
+- Rule explanations for threat analysis
 
 Blocked
 None
@@ -52,6 +59,8 @@ Architecture Decisions
 ✓ Rule-based detection
 ✓ Attack Session Correlation
 ✓ Timeline Reconstruction
+✓ Rule-based threat scoring
+✓ Persistent attack severity
 
 Future Decisions
 - Dashboard widgets
@@ -59,6 +68,8 @@ Future Decisions
 - Rule engine tuning
 - WebSocket live updates
 - Attack simulation framework
+- Alert notification strategy
+- Dashboard visualizations
 
 Change Log
 
@@ -88,3 +99,6 @@ Phase 2.6 completed: chronological attack timeline API with human-readable event
 
 v0.9
 Phase 2.7 completed: dashboard summary API with aggregated security metrics, recent sessions, recent events, and event breakdown statistics.
+
+v1.0
+Phase 3 completed: rule-based threat detection engine with automatic severity scoring, persistent session risk levels, and explainable threat analysis.

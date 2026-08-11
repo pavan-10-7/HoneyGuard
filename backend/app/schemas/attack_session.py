@@ -17,6 +17,10 @@ class AttackSessionRead(BaseModel):
     first_seen: AwareDatetime
     last_seen: AwareDatetime
     request_count: int
+
+    severity: str
+    score: int
+
     status: str
     created_at: AwareDatetime
 
