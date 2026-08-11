@@ -14,6 +14,8 @@ from app.schemas.security_event import SecurityEventCreate, SecurityEventType
 from app.telemetry.event_repository import SecurityEventRepository
 from app.telemetry.session_repository import AttackSessionRepository
 from app.detection.engine import DetectionEngine
+from app.websocket.manager import manager
+from app.dashboard.dashboard_repository import DashboardRepository
 
 
 
@@ -102,8 +104,7 @@ class TelemetryCollector:
         self.session_repository.db.refresh(session)
 
         logger.info(
-            "Decoy interaction captured event_id=%s source_ip=%s "
-            "method=%s path=%s status_code=%s",
+            "Decoy interaction captured event_id=%s source_ip=%s method=%s path=%s status_code=%s",
             event.id,
             event.source_ip,
             event.http_method,
@@ -111,6 +112,60 @@ class TelemetryCollector:
             event.status_code,
         )
 
+        await manager.broadcast(
+            {
+                "type": "new_event",
+                "data": {
+                    "id": str(event.id),
+                    "session_id": str(event.session_id),
+                    "event_type": event.event_type,
+                    "path": event.path,
+                    "method": event.http_method,
+                    "status_code": event.status_code,
+                    "source_ip": str(event.source_ip),
+                    "timestamp": event.timestamp.isoformat(),
+                },
+            }
+        )
+
+        await manager.broadcast(
+            {
+                "type": "session_updated",
+                "data": {
+                    "id": str(session.id),
+                    "source_ip": str(session.source_ip),
+                    "request_count": session.request_count,
+                    "severity": session.severity,
+                    "score": session.score,
+                    "status": session.status,
+                    "first_seen": session.first_seen.isoformat(),
+                    "last_seen": session.last_seen.isoformat(),
+                },
+            }
+        )
+
+        dashboard = DashboardRepository(
+            self.session_repository.db
+        )
+
+        (
+            total_events,
+            active_sessions,
+            latest_events,
+            latest_sessions,
+            breakdown,
+        ) = dashboard.summary()
+
+        await manager.broadcast(
+            {
+                "type": "dashboard_updated",
+                "data": {
+                    "total_events": total_events,
+                    "active_sessions": active_sessions,
+                    "event_breakdown": breakdown,
+                },
+            }
+        )
         return event
 
     @staticmethod

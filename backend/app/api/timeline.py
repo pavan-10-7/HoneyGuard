@@ -10,22 +10,13 @@ from app.database.session import get_db
 from app.models.security_event import SecurityEvent
 from app.schemas.api_response import ApiResponse, success_response
 from app.schemas.timeline import TimelineEntry
+from app.core.constants import EVENT_TITLES
 
 router = APIRouter(
     prefix="/api/v1/timeline",
     tags=["timeline"],
 )
 
-EVENT_TITLES = {
-    "admin_login": "Admin Login Probe",
-    "wordpress": "WordPress Enumeration",
-    "phpmyadmin": "phpMyAdmin Enumeration",
-    "env_file": "Environment File Discovery",
-    "backup_file": "Backup Archive Probe",
-    "internal_api": "Internal API Access Attempt",
-    "jenkins": "Jenkins Console Enumeration",
-    "grafana": "Grafana Dashboard Probe",
-}
 
 
 @router.get("/{session_id}", response_model=ApiResponse[list[TimelineEntry]])

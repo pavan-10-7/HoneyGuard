@@ -18,6 +18,7 @@ from app.core.logging import configure_logging
 from app.api.timeline import router as timeline_router
 from app.api.dashboard import router as dashboard_router
 from app.api.detection import router as detection_router
+from app.api.websocket import router as websocket_router
 
 
 configure_logging(settings.log_level)
@@ -43,5 +44,6 @@ app.include_router(session_router)
 app.include_router(timeline_router)
 app.include_router(dashboard_router)
 app.include_router(detection_router)
+app.include_router(websocket_router)
 
 register_exception_handlers(app)

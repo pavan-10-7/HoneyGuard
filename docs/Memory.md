@@ -1,7 +1,7 @@
 # HoneyGuard - Memory.md
 
 Current Phase:
-Phase 4 - Live Updates
+Phase 5 - Frontend Dashboard
 
 Progress
 
@@ -22,6 +22,7 @@ Completed
 ✓ Phase 2.6 Attack Timeline API
 ✓ Phase 2.7 Dashboard Summary API
 ✓ Phase 3 Detection Engine
+✓ Phase 4 Live Updates
 
 In Progress
 - Phase 3 Detection Engine
@@ -47,6 +48,11 @@ Completed This Phase
 - Persistent session severity
 - Detection API
 - Rule explanations for threat analysis
+- WebSocket server
+- Connection manager
+- Live event broadcasting
+- Live attack session broadcasting
+- Live dashboard broadcasting
 
 Blocked
 None
@@ -61,6 +67,9 @@ Architecture Decisions
 ✓ Timeline Reconstruction
 ✓ Rule-based threat scoring
 ✓ Persistent attack severity
+✓ Event-driven backend
+✓ Single WebSocket connection for dashboard
+✓ Broadcast-based live updates
 
 Future Decisions
 - Dashboard widgets
@@ -102,3 +111,9 @@ Phase 2.7 completed: dashboard summary API with aggregated security metrics, rec
 
 v1.0
 Phase 3 completed: rule-based threat detection engine with automatic severity scoring, persistent session risk levels, and explainable threat analysis.
+
+v1.1
+Completed Phase 4:
+- Implemented WebSocket infrastructure.
+- Added real-time event, session and dashboard broadcasts.
+- Backend now pushes updates instead of requiring polling.
