@@ -142,3 +142,75 @@ Completed Phase 5:
 - Added subtle Framer Motion interactions and transitions.
 - Validated the dashboard across desktop, tablet and mobile viewport sizes.
 - Phase 5 frontend design is now considered locked for subsequent phases.
+
+
+v1.3
+Completed Phase 6 / MVP finalization:
+- Completed backend/frontend integration validation.
+- Connected the React dashboard to the FastAPI APIs and WebSocket for live updates without page refresh.
+- Added functional Threat Analysis, Timeline, Alerts, Reports and Settings pages.
+- Implemented Start New Demo Session so the current session is completed and the next attack starts with a fresh session and score of 0.
+- Fixed attack-session isolation so separate demonstrations do not remain attached to one historical session indefinitely.
+- Added automated `demo_attack.py` for repeatable demonstrations.
+- Added delays between demonstration requests so live event and score progression is visible during presentations.
+- Added randomized attack ordering/selection to avoid identical demonstration scoring every time.
+- Validated the complete flow: decoy interaction → telemetry → session correlation → detection/scoring → WebSocket broadcast → live dashboard update.
+- Verified real-time updates without manual refresh.
+- Verified historical completed sessions remain available while a new attack creates a new active session.
+- Verified the Overview score resets for a new active session.
+- Project MVP is now frozen and demo-ready.
+
+Final MVP Architecture
+✓ FastAPI backend
+✓ React/Vite frontend
+✓ PostgreSQL persistence
+✓ SQLAlchemy/Alembic database layer
+✓ Decoy endpoints
+✓ Security event telemetry
+✓ Attack session correlation and inactivity-based isolation
+✓ Rule-based threat detection
+✓ Explainable threat scoring
+✓ Persistent severity
+✓ Timeline reconstruction
+✓ REST APIs
+✓ Single WebSocket connection for live dashboard updates
+✓ Real-time event/session/dashboard broadcasts
+✓ Functional SOC dashboard pages
+✓ Automated attack demonstration
+✓ Fresh demo-session mechanism
+
+Final Dashboard Pages
+✓ Overview
+✓ Threat Analysis
+✓ Timeline
+✓ Alerts
+✓ Reports
+✓ Settings
+
+Final Validation
+✓ Backend working
+✓ Frontend working
+✓ Backend/frontend connected
+✓ WebSocket live updates verified
+✓ Session isolation verified
+✓ Fresh session score reset verified
+✓ Automated demo attack verified
+✓ Dashboard pages verified
+✓ End-to-end demo flow verified
+
+Current Status
+- Phase 6 complete.
+- MVP finalized and frozen.
+- Demo-ready.
+- Future work should not modify the frozen MVP unless a post-demo enhancement is intentionally started.
+
+Post-Demo Future Work
+- Configurable detection rules
+- Rule engine tuning
+- Advanced behavioral/anomaly detection
+- Authentication and role-based access
+- Alert notification integrations
+- Richer attack attribution
+- Automated response/isolation
+- Additional dashboard visualizations
+- Production deployment hardening
