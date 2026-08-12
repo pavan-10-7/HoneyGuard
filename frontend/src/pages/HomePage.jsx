@@ -214,25 +214,14 @@ export function HomePage() {
       ? sessions
       : dashboard?.latest_sessions ?? [];
 
-  const activeSession =
-    latestSessions.find(
-      (session) => session.status === "active"
-    ) ??
-    dashboard?.latest_sessions?.find(
-      (session) => session.status === "active"
-    ) ??
-    latestSessions[0];
-
-  const threatScore =
-    detection?.score ??
-    activeSession?.score ??
-    0;
-
-  const threatSeverity = normalizeSeverity(
-    detection?.severity ??
-      activeSession?.severity ??
-      "low"
+  const activeSession = sessions.find(
+    (session) => session.status === "active"
   );
+
+  const threatScore = activeSession?.score ?? 0;
+
+  const threatSeverity =
+    activeSession?.severity ?? "low";
 
   const distribution =
     buildSeverityDistribution(latestEvents);
