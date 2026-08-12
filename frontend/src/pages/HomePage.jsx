@@ -8,100 +8,287 @@ import {
   Target,
   TrendingUp,
 } from "lucide-react";
+import { useDashboardData } from "../hooks/useDashboardData";
 
-const metrics = [
-  {
-    label: "Total Events",
-    value: "1,284",
-    change: "+12.4%",
-    icon: Activity,
-    tone: "gold",
-  },
-  {
-    label: "Active Sessions",
-    value: "07",
-    change: "+2",
-    icon: Target,
-    tone: "blue",
-  },
-  {
-    label: "Critical Threats",
-    value: "03",
-    change: "+1",
-    icon: ShieldAlert,
-    tone: "critical",
-  },
-  {
-    label: "Avg. Threat Score",
-    value: "74",
-    change: "+8.7%",
-    icon: TrendingUp,
-    tone: "warning",
-  },
-];
+function formatRelativeTime(timestamp) {
+  if (!timestamp) {
+    return "—";
+  }
 
-const placeholderEvents = [
-  {
-    type: "admin_login",
-    path: "/admin/login",
-    source: "127.0.0.1",
-    time: "Just now",
-    severity: "critical",
-  },
-  {
-    type: "env_file",
-    path: "/.env",
-    source: "127.0.0.1",
-    time: "18 sec ago",
-    severity: "high",
-  },
-  {
-    type: "wordpress",
-    path: "/wp-admin",
-    source: "192.168.1.24",
-    time: "42 sec ago",
-    severity: "medium",
-  },
-  {
-    type: "backup_file",
-    path: "/backup.zip",
-    source: "192.168.1.24",
-    time: "1 min ago",
-    severity: "high",
-  },
-];
+  const date = new Date(timestamp);
 
-const placeholderSessions = [
-  {
-    ip: "127.0.0.1",
-    requests: 7,
-    score: 110,
-    severity: "critical",
-    lastSeen: "2 sec ago",
-  },
-  {
-    ip: "192.168.1.24",
-    requests: 4,
-    score: 68,
-    severity: "high",
-    lastSeen: "31 sec ago",
-  },
-  {
-    ip: "10.0.0.42",
-    requests: 2,
-    score: 28,
-    severity: "medium",
-    lastSeen: "2 min ago",
-  },
-];
+  if (Number.isNaN(date.getTime())) {
+    return "—";
+  }
+
+  const diffSeconds = Math.max(
+    0,
+    Math.floor((Date.now() - date.getTime()) / 1000)
+  );
+
+  if (diffSeconds < 5) {
+    return "Just now";
+  }
+
+  if (diffSeconds < 60) {
+    return `${diffSeconds} sec ago`;
+  }
+
+  const minutes = Math.floor(diffSeconds / 60);
+
+  if (minutes < 60) {
+    return `${minutes} min ago`;
+  }
+
+  const hours = Math.floor(minutes / 60);
+
+  if (hours < 24) {
+    return `${hours} hr ago`;
+  }
+
+  return `${Math.floor(hours / 24)} d ago`;
+}
+
+function formatTime(timestamp) {
+  if (!timestamp) {
+    return "—";
+  }
+
+  const date = new Date(timestamp);
+
+  if (Number.isNaN(date.getTime())) {
+    return "—";
+  }
+
+  return date.toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  });
+}
+
+function normalizeSeverity(severity) {
+  return (
+    severity?.toString()?.toLowerCase() || "low"
+  );
+}
+
+function getEventSeverity(event) {
+  const type = event?.event_type?.toLowerCase();
+
+  if (
+    type === "env_file" ||
+    type === "database" ||
+    type === "database_dump"
+  ) {
+    return "critical";
+  }
+
+  if (
+    type === "admin_login" ||
+    type === "jenkins" ||
+    type === "grafana"
+  ) {
+    return "high";
+  }
+
+  if (
+    type === "wordpress" ||
+    type === "backup_file"
+  ) {
+    return "medium";
+  }
+
+  if (event?.status_code >= 500) {
+    return "high";
+  }
+
+  return "low";
+}
+
+function getThreatLevel(score) {
+  if (score >= 70) {
+    return {
+      label: "CRITICAL",
+      badge: "hg-badge--critical",
+      led: "hg-led--critical",
+    };
+  }
+
+  if (score >= 50) {
+    return {
+      label: "HIGH",
+      badge: "hg-badge--high",
+      led: "hg-led--warning",
+    };
+  }
+
+  if (score >= 20) {
+    return {
+      label: "ELEVATED",
+      badge: "hg-badge--medium",
+      led: "hg-led--warning",
+    };
+  }
+
+  return {
+    label: "LOW",
+    badge: "hg-badge--low",
+    led: "hg-led--blue",
+  };
+}
+
+function buildSeverityDistribution(events = []) {
+  const counts = {
+    critical: 0,
+    high: 0,
+    medium: 0,
+    low: 0,
+  };
+
+  events.forEach((event) => {
+    counts[getEventSeverity(event)] += 1;
+  });
+
+  const total = events.length || 1;
+
+  return {
+    critical: Math.round(
+      (counts.critical / total) * 100
+    ),
+    high: Math.round(
+      (counts.high / total) * 100
+    ),
+    medium: Math.round(
+      (counts.medium / total) * 100
+    ),
+    low: Math.round(
+      (counts.low / total) * 100
+    ),
+  };
+}
+
+function getTimelineTitle(item) {
+  if (item?.title) {
+    return item.title;
+  }
+
+  const titles = {
+    admin_login: "Administrative interface probed",
+    env_file: "Sensitive environment file targeted",
+    wordpress: "WordPress administration endpoint",
+    jenkins: "Jenkins console enumeration",
+    grafana: "Grafana dashboard probe",
+    backup_file: "Backup archive discovered",
+  };
+
+  return (
+    titles[item?.event_type] ||
+    "Suspicious endpoint accessed"
+  );
+}
+
+function getTimelineSeverity(item) {
+  return normalizeSeverity(
+    item?.severity || getEventSeverity(item)
+  ).toUpperCase();
+}
 
 export function HomePage() {
+  const {
+    dashboard,
+    sessions,
+    timeline,
+    detection,
+    loading,
+    error,
+    wsConnected,
+  } = useDashboardData();
+
+  const latestEvents =
+    dashboard?.latest_events ?? [];
+
+  const latestSessions =
+    sessions?.length > 0
+      ? sessions
+      : dashboard?.latest_sessions ?? [];
+
+  const activeSession =
+    latestSessions.find(
+      (session) => session.status === "active"
+    ) ??
+    dashboard?.latest_sessions?.find(
+      (session) => session.status === "active"
+    ) ??
+    latestSessions[0];
+
+  const threatScore =
+    detection?.score ??
+    activeSession?.score ??
+    0;
+
+  const threatSeverity = normalizeSeverity(
+    detection?.severity ??
+      activeSession?.severity ??
+      "low"
+  );
+
+  const distribution =
+    buildSeverityDistribution(latestEvents);
+
+  const threatLevel =
+    getThreatLevel(threatScore);
+
+  const metrics = [
+    {
+      label: "Total Events",
+      value: dashboard?.total_events ?? 0,
+      change: wsConnected ? "LIVE" : "—",
+      icon: Activity,
+      tone: "gold",
+    },
+    {
+      label: "Active Sessions",
+      value: String(
+        dashboard?.active_sessions ??
+          latestSessions.filter(
+            (session) => session.status === "active"
+          ).length
+      ).padStart(2, "0"),
+      change: wsConnected ? "LIVE" : "—",
+      icon: Target,
+      tone: "blue",
+    },
+    {
+      label: "Critical Threats",
+      value: latestSessions.filter(
+        (session) =>
+          normalizeSeverity(session.severity) ===
+          "critical"
+      ).length,
+      change: threatSeverity.toUpperCase(),
+      icon: ShieldAlert,
+      tone: "critical",
+    },
+    {
+      label: "Avg. Threat Score",
+      value: threatScore,
+      change: threatSeverity.toUpperCase(),
+      icon: TrendingUp,
+      tone: "warning",
+    },
+  ];
+
   return (
     <motion.div
       className="mx-auto w-full max-w-[1800px]"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: 0.2, ease: "easeOut" }}
+      transition={{
+        duration: 0.2,
+        ease: "easeOut",
+      }}
     >
       {/* =====================================================
           PAGE HEADING
@@ -123,26 +310,40 @@ export function HomePage() {
           </h2>
 
           <p className="mt-1 max-w-2xl text-[11px] leading-5 text-[#777] sm:text-[12px]">
-            Monitor deception activity, attack sessions, and
-            emerging threats across the HoneyGuard environment.
+            Monitor deception activity, attack sessions,
+            and emerging threats across the HoneyGuard
+            environment.
           </p>
         </div>
 
-        {/* FIX: larger, calmer monitoring indicator */}
         <div className="hg-inset flex min-h-[42px] w-full shrink-0 items-center justify-between gap-3 rounded-lg px-4 py-2.5 sm:w-auto sm:min-w-[190px]">
           <div className="flex items-center gap-2.5">
-            <span className="hg-status-dot hg-status-dot--success" />
+            <span
+              className={`hg-status-dot ${
+                wsConnected
+                  ? "hg-status-dot--success"
+                  : "hg-status-dot--warning"
+              }`}
+            />
 
             <span className="text-[10px] font-medium text-[#bdbdbd] sm:text-[11px]">
-              Monitoring Active
+              {wsConnected
+                ? "Monitoring Active"
+                : "Connecting..."}
             </span>
           </div>
 
           <span className="hg-mono text-[9px] tracking-wide text-[#5f5f5f]">
-            LIVE
+            {wsConnected ? "LIVE" : "CONNECTING"}
           </span>
         </div>
       </motion.section>
+
+      {error && (
+        <div className="mb-4 rounded-lg border border-[#4a2929] bg-[#171010] px-4 py-3 text-[10px] text-[#d99090]">
+          Unable to load live HoneyGuard data: {error}
+        </div>
+      )}
 
       {/* =====================================================
           METRICS
@@ -154,6 +355,7 @@ export function HomePage() {
             key={metric.label}
             metric={metric}
             index={index}
+            loading={loading}
           />
         ))}
       </section>
@@ -166,7 +368,10 @@ export function HomePage() {
         <motion.section
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.12, duration: 0.25 }}
+          transition={{
+            delay: 0.12,
+            duration: 0.25,
+          }}
           className="hg-raised min-w-0 overflow-hidden"
         >
           <PanelHeader
@@ -177,19 +382,42 @@ export function HomePage() {
           />
 
           <div className="divide-y divide-[#222]">
-            {placeholderEvents.map((event) => (
-              <EventRow
-                key={`${event.type}-${event.time}`}
-                event={event}
-              />
-            ))}
+            {loading && latestEvents.length === 0 ? (
+              <LoadingRows count={4} />
+            ) : latestEvents.length > 0 ? (
+              latestEvents
+                .slice(0, 6)
+                .map((event) => (
+                  <EventRow
+                    key={event.id}
+                    event={{
+                      type:
+                        event.event_type ??
+                        "unknown_event",
+                      path: event.path,
+                      source: event.source_ip,
+                      time: formatRelativeTime(
+                        event.timestamp
+                      ),
+                      severity:
+                        event.severity ??
+                        getEventSeverity(event),
+                    }}
+                  />
+                ))
+            ) : (
+              <EmptyState text="No security events recorded." />
+            )}
           </div>
         </motion.section>
 
         <motion.section
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.16, duration: 0.25 }}
+          transition={{
+            delay: 0.16,
+            duration: 0.25,
+          }}
           className="hg-raised min-w-0 overflow-hidden"
         >
           <PanelHeader
@@ -200,12 +428,28 @@ export function HomePage() {
           />
 
           <div className="space-y-2 p-3">
-            {placeholderSessions.map((session) => (
-              <SessionRow
-                key={session.ip}
-                session={session}
-              />
-            ))}
+            {loading && latestSessions.length === 0 ? (
+              <LoadingRows count={2} />
+            ) : latestSessions.length > 0 ? (
+              latestSessions
+                .slice(0, 4)
+                .map((session) => (
+                  <SessionRow
+                    key={session.id}
+                    session={{
+                      ip: session.source_ip,
+                      requests: session.request_count,
+                      score: session.score,
+                      severity: session.severity,
+                      lastSeen: formatRelativeTime(
+                        session.last_seen
+                      ),
+                    }}
+                  />
+                ))
+            ) : (
+              <EmptyState text="No attack sessions recorded." />
+            )}
           </div>
         </motion.section>
       </section>
@@ -222,7 +466,10 @@ export function HomePage() {
         <motion.section
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.25 }}
+          transition={{
+            delay: 0.2,
+            duration: 0.25,
+          }}
           className="hg-raised min-w-0 overflow-hidden"
         >
           <PanelHeader
@@ -233,37 +480,38 @@ export function HomePage() {
           />
 
           <div className="px-4 py-5 sm:px-6 sm:py-6">
-            <div className="relative ml-1 border-l border-[#303030] pl-6 sm:ml-2 sm:pl-8">
-              <TimelineItem
-                time="20:55:03"
-                title="Administrative interface probed"
-                detail="GET /admin/login"
-                severity="CRITICAL"
-                active
-              />
-
-              <TimelineItem
-                time="20:54:41"
-                title="Sensitive environment file targeted"
-                detail="GET /.env"
-                severity="HIGH"
-              />
-
-              <TimelineItem
-                time="20:54:18"
-                title="WordPress administration endpoint"
-                detail="GET /wp-admin"
-                severity="MEDIUM"
-              />
-
-              <TimelineItem
-                time="20:53:52"
-                title="Backup archive discovered"
-                detail="GET /backup.zip"
-                severity="HIGH"
-                last
-              />
-            </div>
+            {timeline.length > 0 ? (
+              <div className="relative ml-1 border-l border-[#303030] pl-6 sm:ml-2 sm:pl-8">
+                {timeline
+                  .slice(0, 6)
+                  .map((item, index) => (
+                    <TimelineItem
+                      key={item.id}
+                      time={formatTime(
+                        item.timestamp
+                      )}
+                      title={getTimelineTitle(item)}
+                      detail={`${item.method ?? "GET"} ${
+                        item.path ?? "—"
+                      }`}
+                      severity={getTimelineSeverity(
+                        item
+                      )}
+                      active={index === 0}
+                      last={
+                        index ===
+                        Math.min(
+                          timeline.length,
+                          6
+                        ) -
+                          1
+                      }
+                    />
+                  ))}
+              </div>
+            ) : (
+              <EmptyState text="No timeline activity available." />
+            )}
           </div>
         </motion.section>
 
@@ -274,7 +522,10 @@ export function HomePage() {
         <motion.section
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.24, duration: 0.25 }}
+          transition={{
+            delay: 0.24,
+            duration: 0.25,
+          }}
           className="hg-raised min-w-0 overflow-hidden"
         >
           <PanelHeader
@@ -285,24 +536,44 @@ export function HomePage() {
 
           <div className="flex min-h-[350px] flex-col p-5 sm:p-6">
             <div className="grid flex-1 grid-cols-1 items-center gap-5 sm:grid-cols-[minmax(150px,0.85fr)_1fr] sm:gap-6">
-              {/* Perfectly square chart area */}
               <div className="flex justify-center">
                 <div className="relative aspect-square w-[155px] max-w-full sm:w-[170px]">
                   <div
                     className="absolute inset-0 rounded-full"
                     style={{
-                      background:
-                        "conic-gradient(#ef4444 0deg 58deg, #f97316 58deg 150deg, #eab308 150deg 245deg, #3b82f6 245deg 360deg)",
+                      background: `conic-gradient(
+                        #ef4444 0deg ${distribution.critical * 3.6}deg,
+                        #f97316 ${distribution.critical * 3.6}deg ${
+                          (distribution.critical +
+                            distribution.high) *
+                          3.6
+                        }deg,
+                        #eab308 ${
+                          (distribution.critical +
+                            distribution.high) *
+                          3.6
+                        }deg ${
+                          (distribution.critical +
+                            distribution.high +
+                            distribution.medium) *
+                          3.6
+                        }deg,
+                        #3b82f6 ${
+                          (distribution.critical +
+                            distribution.high +
+                            distribution.medium) *
+                          3.6
+                        }deg 360deg
+                      )`,
                     }}
                   />
 
                   <div className="absolute inset-[7px] rounded-full bg-[#101010] shadow-[inset_2px_2px_6px_rgba(0,0,0,0.9),inset_-1px_-1px_2px_rgba(255,255,255,0.04)]" />
 
-                  {/* Perfectly centered score */}
                   <div className="absolute inset-[14px] flex items-center justify-center rounded-full bg-[#0c0c0c] shadow-[0_2px_7px_rgba(0,0,0,0.8)]">
                     <div className="flex flex-col items-center text-center">
                       <span className="hg-mono hg-metric-value text-[30px] font-semibold leading-none text-white">
-                        74
+                        {threatScore}
                       </span>
 
                       <span className="hg-label mt-2 text-[8px]">
@@ -313,29 +584,28 @@ export function HomePage() {
                 </div>
               </div>
 
-              {/* Distribution legend */}
               <div className="min-w-0 space-y-2.5">
                 <SeverityLegend
                   label="Critical"
-                  value="16%"
+                  value={`${distribution.critical}%`}
                   color="bg-[var(--hg-critical)]"
                 />
 
                 <SeverityLegend
                   label="High"
-                  value="25%"
+                  value={`${distribution.high}%`}
                   color="bg-[var(--hg-high)]"
                 />
 
                 <SeverityLegend
                   label="Medium"
-                  value="31%"
+                  value={`${distribution.medium}%`}
                   color="bg-[var(--hg-medium)]"
                 />
 
                 <SeverityLegend
                   label="Low"
-                  value="28%"
+                  value={`${distribution.low}%`}
                   color="bg-[var(--hg-low)]"
                 />
               </div>
@@ -348,9 +618,13 @@ export function HomePage() {
                 Overall Threat Level
               </span>
 
-              <span className="hg-badge hg-badge--high">
-                <span className="hg-led hg-led--warning" />
-                ELEVATED
+              <span
+                className={`hg-badge ${threatLevel.badge}`}
+              >
+                <span
+                  className={`hg-led ${threatLevel.led}`}
+                />
+                {threatLevel.label}
               </span>
             </div>
           </div>
@@ -364,7 +638,11 @@ export function HomePage() {
    METRIC CARD
    ========================================================= */
 
-function MetricCard({ metric, index }) {
+function MetricCard({
+  metric,
+  index,
+  loading,
+}) {
   const Icon = metric.icon;
 
   const iconColor =
@@ -403,7 +681,9 @@ function MetricCard({ metric, index }) {
 
       <div className="mt-5 flex items-end justify-between gap-3">
         <span className="hg-mono hg-metric-value truncate text-2xl font-semibold tracking-tight text-white">
-          {metric.value}
+          {loading && metric.value === 0
+            ? "—"
+            : metric.value}
         </span>
 
         <span className="hg-mono shrink-0 text-[10px] text-[var(--hg-success)]">
@@ -545,7 +825,9 @@ function EventRow({ event }) {
       </div>
 
       <div className="flex shrink-0 flex-col items-end gap-1.5">
-        <span className={`hg-badge ${config.badge}`}>
+        <span
+          className={`hg-badge ${config.badge}`}
+        >
           <span
             className={`hg-led ${config.led}`}
           />
@@ -609,8 +891,12 @@ function SessionRow({ session }) {
           </span>
         </div>
 
-        <span className={`hg-badge shrink-0 ${config.badge}`}>
-          <span className={`hg-led ${config.led}`} />
+        <span
+          className={`hg-badge shrink-0 ${config.badge}`}
+        >
+          <span
+            className={`hg-led ${config.led}`}
+          />
           {severity}
         </span>
       </div>
@@ -754,6 +1040,40 @@ function SeverityLegend({
       <span className="hg-mono text-[10px] font-semibold text-[#777]">
         {value}
       </span>
+    </div>
+  );
+}
+
+/* =========================================================
+   STATES
+   ========================================================= */
+
+function LoadingRows({ count = 3 }) {
+  return (
+    <>
+      {Array.from({ length: count }).map(
+        (_, index) => (
+          <div
+            key={index}
+            className="flex items-center gap-3 px-4 py-4"
+          >
+            <div className="h-9 w-9 animate-pulse rounded-md bg-[#181818]" />
+
+            <div className="min-w-0 flex-1 space-y-2">
+              <div className="h-2.5 w-1/3 animate-pulse rounded bg-[#181818]" />
+              <div className="h-2 w-1/2 animate-pulse rounded bg-[#151515]" />
+            </div>
+          </div>
+        )
+      )}
+    </>
+  );
+}
+
+function EmptyState({ text }) {
+  return (
+    <div className="px-4 py-8 text-center text-[10px] text-[#555]">
+      {text}
     </div>
   );
 }
